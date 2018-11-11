@@ -1,9 +1,25 @@
-FROM jupyter/base-notebook
+# Distributed under the terms of the Modified BSD License.
+ARG BASE_CONTAINER=jupyter/base-notebook
+FROM $BASE_CONTAINER
 
-# Add RUN statements to install packages as the $NB_USER defined in the base images.
 
-# Add a "USER root" statement followed by RUN statements to install system packages using apt-get,
-# change file permissions, etc.
+LABEL maintainer="Thiago Colares <thicolares@gmail.com>"
 
-# If you do switch to root, always be sure to add a "USER $NB_USER" command at the end of the
-# file to ensure the image runs as a unprivileged user by default.
+
+USER root
+
+
+# Install GNU Octave and GNU Plot (a portable command-line driven graphing utility)
+RUN apt-get update && \
+    apt-get install -y gnuplot octave && \
+    apt-get clean
+
+
+USER $NB_UID
+
+
+# Install octave_kernell as jovyan.
+# Set the OCTAVE_EXECUTABLE environment variable
+# so the octave_kernel knows which Octave program to run.
+RUN pip install octave_kernel && \
+    export OCTAVE_EXECUTABLE=$(which octave)
